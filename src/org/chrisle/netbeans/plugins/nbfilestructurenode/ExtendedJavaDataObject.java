@@ -2,18 +2,14 @@ package org.chrisle.netbeans.plugins.nbfilestructurenode;
 
 import com.sun.source.tree.ClassTree;
 import com.sun.source.util.TreePathScanner;
-import java.io.IOException;
 import java.util.List;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.ElementFilter;
 import javax.swing.JOptionPane;
-import org.netbeans.api.java.source.CompilationController;
 import org.netbeans.api.java.source.CompilationInfo;
 import org.netbeans.api.java.source.JavaSource;
-import org.netbeans.api.java.source.JavaSource.Phase;
-import org.netbeans.api.java.source.Task;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
@@ -28,7 +24,6 @@ import org.openide.nodes.AbstractNode;
 import org.openide.nodes.ChildFactory;
 import org.openide.nodes.FilterNode.Children;
 import org.openide.nodes.Node;
-import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 
@@ -128,17 +123,21 @@ public class ExtendedJavaDataObject extends MultiDataObject {
             FileObject fObj = dObj.getPrimaryFile();
 
             JavaSource js = JavaSource.forFileObject(fObj);
-
-            try {
-                js.runUserActionTask(new Task<CompilationController>() {
-                    public void run(CompilationController parameter) throws IOException {
-                        parameter.toPhase(Phase.ELEMENTS_RESOLVED);
-                        new MemberVisitor(parameter).scan(parameter.getCompilationUnit(), null);
-                    }
-                }, true);
-            } catch (IOException ex) {
-                Exceptions.printStackTrace(ex);
+            
+            for (FileObject object : js.getFileObjects()) {
+                JOptionPane.showMessageDialog(null, object.getName());
             }
+            
+//            try {
+//                js.runUserActionTask(new Task<CompilationController>() {
+//                    public void run(CompilationController parameter) throws IOException {
+//                        parameter.toPhase(Phase.ELEMENTS_RESOLVED);
+//                        new MemberVisitor(parameter).scan(parameter.getCompilationUnit(), null);
+//                    }
+//                }, true);
+//            } catch (IOException ex) {
+//                Exceptions.printStackTrace(ex);
+//            }
 
 //            try {
 //                List<String> dObjContent = fObj.asLines();
