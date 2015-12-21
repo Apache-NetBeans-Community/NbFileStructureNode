@@ -153,6 +153,7 @@ public class ExtendedJavaDataObject extends MultiDataObject {
         protected Node createNodeForKey(String key) {
             Node childNode = new AbstractNode(Children.LEAF);
             childNode.setDisplayName(key);
+
             return childNode;
         }
     }
@@ -173,14 +174,24 @@ public class ExtendedJavaDataObject extends MultiDataObject {
                 System.err.println("Cannot resolve class!");
             } else {
                 TypeElement te = (TypeElement) el;
-
-                List<ExecutableElement> methodsIn = ElementFilter.methodsIn(te.getEnclosedElements());
                 
-                JOptionPane.showMessageDialog(null, methodsIn.size());
-                
-                for (ExecutableElement executableElement : methodsIn) {
+                for (Element executableElement : te.getEnclosedElements()) {
                     JOptionPane.showMessageDialog(null, executableElement.getSimpleName().toString());
                 }
+
+                List<ExecutableElement> methodsIn = ElementFilter.methodsIn(te.getEnclosedElements());
+//                List<ExecutableElement> methodsIn = ElementFilter.methodsIn(t.getMembers());
+//                List<TypeElement> typesIn = ElementFilter.typesIn(t.);
+//                
+//                JOptionPane.showMessageDialog(null, typesIn.size());
+//                
+//                for (TypeElement typeElem : typesIn) {
+//                    JOptionPane.showMessageDialog(null, typeElem.getSimpleName().toString());
+//                }
+                
+//                for (ExecutableElement executableElement : methodsIn) {
+//                    JOptionPane.showMessageDialog(null, executableElement.getSimpleName().toString());
+//                }
 
                 System.err.println("Resolved class: " + te.getQualifiedName().toString());
                 //XXX: only as an example, uses toString on element, which should be used only for debugging
