@@ -2,17 +2,21 @@ package org.chrisle.netbeans.plugins.nbfilestructurenode;
 
 import com.sun.source.tree.ClassTree;
 import com.sun.source.util.TreePathScanner;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import javax.lang.model.element.Element;
-import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.util.ElementFilter;
 import javax.swing.JOptionPane;
+import org.netbeans.api.java.source.CompilationController;
 import org.netbeans.api.java.source.CompilationInfo;
 import org.netbeans.api.java.source.JavaSource;
+import org.netbeans.api.java.source.JavaSource.Phase;
+import org.netbeans.api.java.source.Task;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
+import org.openide.awt.StatusDisplayer;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.MIMEResolver;
 import org.openide.loaders.DataNode;
@@ -24,14 +28,15 @@ import org.openide.nodes.AbstractNode;
 import org.openide.nodes.ChildFactory;
 import org.openide.nodes.FilterNode.Children;
 import org.openide.nodes.Node;
+import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
-import org.openide.util.NbBundle;
+import org.openide.util.NbBundle.Messages;
 
 /**
  *
- * @author chrl
+ * @author ChrisLE
  */
-@NbBundle.Messages({
+@Messages({
     "LBL_InstallPluginAction_LOADER=Java file"
 })
 @MIMEResolver.ExtensionRegistration(
@@ -45,6 +50,12 @@ import org.openide.util.NbBundle;
         position = 300
 )
 @ActionReferences({
+    @ActionReference(
+            path = "Loaders/text/x-java/Actions",
+            id = @ActionID(category = "System", id = "org.openide.actions.OpenAction"),
+            position = 100,
+            separatorAfter = 200
+    ),
     @ActionReference(
             path = "Loaders/text/x-java/Actions",
             id = @ActionID(category = "Edit", id = "org.openide.actions.CutAction"),
@@ -91,17 +102,17 @@ import org.openide.util.NbBundle;
     )
 })
 public class ExtendedJavaDataObject extends MultiDataObject {
+    public static List _list = new ArrayList();
 
     public ExtendedJavaDataObject(FileObject fo, MultiFileLoader loader) throws DataObjectExistsException {
         super(fo, loader);
+        registerEditor("text/x-java", true);
     }
 
     @Override
     protected Node createNodeDelegate() {
         DataNode dataNode = new DataNode(this, Children.create(new JavaChildFactory(this), true), getLookup());
-//        dataNode.getI
-
-//        dataNode.setIconBaseWithExtension(FileUtil.getConfigObject("text/x-java", ExtendedJavaDataObject.class));
+//            dataNode.setIconBaseWithExtension(FileUtil.getConfigObject("text/x-java", ExtendedJavaDataObject.class));
         return dataNode;
     }
 
@@ -111,7 +122,6 @@ public class ExtendedJavaDataObject extends MultiDataObject {
     }
 
     private static class JavaChildFactory extends ChildFactory<String> {
-
         private final ExtendedJavaDataObject dObj;
 
         public JavaChildFactory(ExtendedJavaDataObject dObj) {
@@ -121,24 +131,24 @@ public class ExtendedJavaDataObject extends MultiDataObject {
         @Override
         protected boolean createKeys(List list) {
             FileObject fObj = dObj.getPrimaryFile();
-
             JavaSource js = JavaSource.forFileObject(fObj);
             
-            for (FileObject object : js.getFileObjects()) {
-                JOptionPane.showMessageDialog(null, object.getName());
+            try {
+                _list = list;
+
+                js.runUserActionTask(new Task<CompilationController>() {
+                    public void run(CompilationController parameter) throws IOException {
+                        parameter.toPhase(Phase.ELEMENTS_RESOLVED);
+                        new MemberVisitor(parameter).scan(parameter.getCompilationUnit(), null);
+                    }
+                }, true);
+                
+//                list.addAll(_list);
+            } catch (IOException ex) {
+                Exceptions.printStackTrace(ex);
             }
             
-//            try {
-//                js.runUserActionTask(new Task<CompilationController>() {
-//                    public void run(CompilationController parameter) throws IOException {
-//                        parameter.toPhase(Phase.ELEMENTS_RESOLVED);
-//                        new MemberVisitor(parameter).scan(parameter.getCompilationUnit(), null);
-//                    }
-//                }, true);
-//            } catch (IOException ex) {
-//                Exceptions.printStackTrace(ex);
-//            }
-
+            
 //            try {
 //                List<String> dObjContent = fObj.asLines();
 //                list.addAll(dObjContent);
@@ -158,7 +168,6 @@ public class ExtendedJavaDataObject extends MultiDataObject {
     }
 
     private static class MemberVisitor extends TreePathScanner<Void, Void> {
-
         private final CompilationInfo info;
 
         public MemberVisitor(CompilationInfo info) {
@@ -168,34 +177,38 @@ public class ExtendedJavaDataObject extends MultiDataObject {
         @Override
         public Void visitClass(ClassTree t, Void v) {
             Element el = info.getTrees().getElement(getCurrentPath());
-
+//
             if (el == null) {
-                System.err.println("Cannot resolve class!");
+                StatusDisplayer.getDefault().setStatusText("Cannot resolve class!");
             } else {
                 TypeElement te = (TypeElement) el;
                 
-                for (Element executableElement : te.getEnclosedElements()) {
-                    JOptionPane.showMessageDialog(null, executableElement.getSimpleName().toString());
-                }
-
-                List<ExecutableElement> methodsIn = ElementFilter.methodsIn(te.getEnclosedElements());
-//                List<ExecutableElement> methodsIn = ElementFilter.methodsIn(t.getMembers());
-//                List<TypeElement> typesIn = ElementFilter.typesIn(t.);
-//                
-//                JOptionPane.showMessageDialog(null, typesIn.size());
-//                
-//                for (TypeElement typeElem : typesIn) {
-//                    JOptionPane.showMessageDialog(null, typeElem.getSimpleName().toString());
-//                }
+                _list.add(te.getSimpleName().toString());
                 
-//                for (ExecutableElement executableElement : methodsIn) {
-//                    JOptionPane.showMessageDialog(null, executableElement.getSimpleName().toString());
+//                JOptionPane.showMessageDialog(null, te.getSimpleName());
+//                
+//                for (Element enclosedElement : te.getEnclosedElements()) {
+//                    JOptionPane.showMessageDialog(null, enclosedElement.getSimpleName());
 //                }
-
-                System.err.println("Resolved class: " + te.getQualifiedName().toString());
-                //XXX: only as an example, uses toString on element, which should be used only for debugging
-                System.err.println("enclosed methods: " + ElementFilter.methodsIn(te.getEnclosedElements()));
-                System.err.println("enclosed types: " + ElementFilter.typesIn(te.getEnclosedElements()));
+//
+////                List<ExecutableElement> methodsIn = ElementFilter.methodsIn(te.getEnclosedElements());
+////                List<ExecutableElement> methodsIn = ElementFilter.methodsIn(t.getMembers());
+////                List<TypeElement> typesIn = ElementFilter.typesIn(t.);
+////                
+////                JOptionPane.showMessageDialog(null, typesIn.size());
+////                
+////                for (TypeElement typeElem : typesIn) {
+////                    JOptionPane.showMessageDialog(null, typeElem.getSimpleName().toString());
+////                }
+//                
+////                for (ExecutableElement executableElement : methodsIn) {
+////                    JOptionPane.showMessageDialog(null, executableElement.getSimpleName().toString());
+////                }
+//
+////                System.err.println("Resolved class: " + te.getQualifiedName().toString());
+////                //XXX: only as an example, uses toString on element, which should be used only for debugging
+////                System.err.println("enclosed methods: " + ElementFilter.methodsIn(te.getEnclosedElements()));
+////                System.err.println("enclosed types: " + ElementFilter.typesIn(te.getEnclosedElements()));
             }
             return null;
         }
