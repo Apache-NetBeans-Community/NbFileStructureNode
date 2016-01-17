@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
-import javax.swing.JOptionPane;
 import org.netbeans.api.java.source.CompilationController;
 import org.netbeans.api.java.source.CompilationInfo;
 import org.netbeans.api.java.source.JavaSource;
@@ -121,7 +120,7 @@ public class ExtendedJavaDataObject extends MultiDataObject {
         return getCookieSet().getLookup();
     }
 
-    private static class JavaChildFactory extends ChildFactory<String> {
+    private static class JavaChildFactory extends ChildFactory<Object> {
         private final ExtendedJavaDataObject dObj;
 
         public JavaChildFactory(ExtendedJavaDataObject dObj) {
@@ -143,25 +142,17 @@ public class ExtendedJavaDataObject extends MultiDataObject {
                     }
                 }, true);
                 
-//                list.addAll(_list);
             } catch (IOException ex) {
                 Exceptions.printStackTrace(ex);
             }
-            
-            
-//            try {
-//                List<String> dObjContent = fObj.asLines();
-//                list.addAll(dObjContent);
-//            } catch (IOException ex) {
-//                Exceptions.printStackTrace(ex);
-//            }
+
             return true;
         }
 
         @Override
-        protected Node createNodeForKey(String key) {
+        protected Node createNodeForKey(Object key) {
             Node childNode = new AbstractNode(Children.LEAF);
-            childNode.setDisplayName(key);
+            childNode.setDisplayName(key.toString());
 
             return childNode;
         }
