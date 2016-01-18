@@ -2,10 +2,12 @@ package org.chrisle.netbeans.plugins.nbfilestructurenode;
 
 import com.sun.source.tree.ClassTree;
 import com.sun.source.util.TreePathScanner;
+import java.awt.Image;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 import org.netbeans.api.java.source.CompilationController;
 import org.netbeans.api.java.source.CompilationInfo;
@@ -28,6 +30,7 @@ import org.openide.nodes.ChildFactory;
 import org.openide.nodes.FilterNode.Children;
 import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
+import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
 
@@ -108,13 +111,17 @@ public class ExtendedJavaDataObject extends MultiDataObject {
         registerEditor("text/x-java", true);
     }
 
+    public static Image _javaClassIcon;
+
     @Override
     protected Node createNodeDelegate() {
         DataNode dataNode = new DataNode(this, Children.create(new JavaChildFactory(this), true), getLookup());
-//            dataNode.setIconBaseWithExtension(FileUtil.getConfigObject("text/x-java", ExtendedJavaDataObject.class));
+        
+        dataNode.setIconBase("org/chrisle/netbeans/plugins/nbfilestructurenode/resources/javaClassFile.gif");
+
         return dataNode;
     }
-
+    
     @Override
     public Lookup getLookup() {
         return getCookieSet().getLookup();
@@ -151,10 +158,21 @@ public class ExtendedJavaDataObject extends MultiDataObject {
 
         @Override
         protected Node createNodeForKey(Object key) {
-            Node childNode = new AbstractNode(Children.LEAF);
+            Node childNode = new JavaClassNode();
             childNode.setDisplayName(key.toString());
 
             return childNode;
+        }
+    }
+    
+    private static class JavaClassNode extends AbstractNode {
+        @Override
+        public Image getIcon(int type) {
+            return _javaClassIcon;
+        }
+        
+        public JavaClassNode() {
+            super(Children.LEAF);
         }
     }
 
@@ -168,11 +186,25 @@ public class ExtendedJavaDataObject extends MultiDataObject {
         @Override
         public Void visitClass(ClassTree t, Void v) {
             Element el = info.getTrees().getElement(getCurrentPath());
-//
+
             if (el == null) {
                 StatusDisplayer.getDefault().setStatusText("Cannot resolve class!");
             } else {
                 TypeElement te = (TypeElement) el;
+                
+                if(null != te.getKind()) switch (te.getKind()) {
+                    case CLASS:
+                        _javaClassIcon = ImageUtilities.loadImage("org/chrisle/netbeans/plugins/nbfilestructurenode/resources/classTypeJavaClass.png");
+                        break;
+                    case INTERFACE:
+                        _javaClassIcon = ImageUtilities.loadImage("org/chrisle/netbeans/plugins/nbfilestructurenode/resources/classTypeInterface.png");
+                        break;
+                    case ENUM:
+                        _javaClassIcon = ImageUtilities.loadImage("org/chrisle/netbeans/plugins/nbfilestructurenode/resources/classTypeEnum.png");
+                        break;
+                    default:
+                        break;
+                }
                 
                 _list.add(te.getSimpleName().toString());
                 
