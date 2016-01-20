@@ -114,6 +114,12 @@ public class ExtendedJavaDataObject extends MultiDataObject {
                 case ENUM:
                     result = ImageUtilities.loadImage("org/chrisle/netbeans/plugins/nbfilestructurenode/resources/classTypeEnum.png");
                     break;
+                case ANNOTATION_TYPE:
+                    result = ImageUtilities.loadImage("org/chrisle/netbeans/plugins/nbfilestructurenode/resources/classTypeAnnot.png");
+                    break;
+//                case EXCEPTION_PARAMETER:
+//                    result = ImageUtilities.loadImage("org/chrisle/netbeans/plugins/nbfilestructurenode/resources/classTypeException.png");
+//                    break;
                 default:
                     break;
             }
