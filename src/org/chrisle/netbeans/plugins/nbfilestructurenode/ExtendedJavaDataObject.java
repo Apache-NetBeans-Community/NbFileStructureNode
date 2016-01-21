@@ -1,10 +1,14 @@
 package org.chrisle.netbeans.plugins.nbfilestructurenode;
 
 import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.lang.model.element.TypeElement;
+import static javax.swing.Action.NAME;
+import javax.swing.JOptionPane;
 import org.netbeans.api.java.source.CompilationController;
 import org.netbeans.api.java.source.JavaSource;
 import org.netbeans.api.java.source.JavaSource.Phase;
@@ -26,7 +30,9 @@ import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
 import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
+import org.openide.util.LookupEvent;
 import org.openide.util.NbBundle.Messages;
+import org.openide.util.Utilities;
 
 /**
  *
@@ -124,6 +130,7 @@ public class ExtendedJavaDataObject extends MultiDataObject {
                     break;
             }
         }
+
         return result;
     }
 
@@ -139,16 +146,16 @@ public class ExtendedJavaDataObject extends MultiDataObject {
 
     @Override
     protected Node createNodeDelegate() {
-//         return JavaDataSupport.createJavaNode(getPrimaryFile());
         List<TypeElement> children = getElementsFromFile(getPrimaryFile());
         Image iconForElement = null;
+
         if (!children.isEmpty()) {
             TypeElement firstElement = children.iterator().next();
             iconForElement = getIconForElement(firstElement);
         }
+
         final Image icon = iconForElement;
         DataNode dataNode = new DataNode(this, Children.create(new JavaChildFactory(children), true), getLookup()) {
-
             @Override
             public Image getIcon(int type) {
                 if (null != icon) {
@@ -163,7 +170,6 @@ public class ExtendedJavaDataObject extends MultiDataObject {
             public Image getOpenedIcon(int type) {
                 return getIcon(type);
             }
-
         };
 
         return dataNode;
@@ -181,6 +187,7 @@ public class ExtendedJavaDataObject extends MultiDataObject {
                 @Override
                 public void run(CompilationController cc) throws Exception {
                     cc.toPhase(Phase.ELEMENTS_RESOLVED);
+
                     for (TypeElement te : cc.getTopLevelElements()) {
                         result.add(te);
                     }
@@ -192,7 +199,7 @@ public class ExtendedJavaDataObject extends MultiDataObject {
         return result;
     }
 
-    private static class JavaChildFactory extends ChildFactory<TypeElement> {
+    private class JavaChildFactory extends ChildFactory<TypeElement> {
 
         private final List<TypeElement> elements;
 
@@ -209,7 +216,6 @@ public class ExtendedJavaDataObject extends MultiDataObject {
 
         @Override
         protected Node createNodeForKey(TypeElement te) {
-
             JavaClassNode childNode = new JavaClassNode();
             childNode.setDisplayName(te.getSimpleName().toString());
 
@@ -222,7 +228,7 @@ public class ExtendedJavaDataObject extends MultiDataObject {
         }
     }
 
-    private static class JavaClassNode extends AbstractNode {
+    private class JavaClassNode extends AbstractNode {
 
         Image icon;
 
@@ -231,8 +237,75 @@ public class ExtendedJavaDataObject extends MultiDataObject {
             return icon;
         }
 
+//        @Override
+//        public Action[] getActions(boolean context) {
+//            return new Action[]{new MyAction()};
+//        }
+
         public JavaClassNode() {
             super(Children.LEAF);
         }
     }
+
+    private final class MyAction implements ActionListener {
+        private Lookup context;
+        Lookup.Result<ExtendedJavaDataObject> lkpInfo;
+        
+//        public MyAction() {
+//            this(Utilities.actionsGlobalContext());
+//        }
+        
+//        public MyAction(Lookup context) {
+//            putValue(NAME, "Do Smth");
+//            
+//            this.context = context;
+//            
+//            //The thing we want to listen for the presence or absence of
+//        //on the global selection
+//            lkpInfo = context.lookupResult(ExtendedJavaDataObject.class);
+//            lkpInfo.addLookupListener(this);
+//            resultChanged(null);
+//        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            ExtendedJavaDataObject javaClassNode = Utilities.actionsGlobalContext().lookup(ExtendedJavaDataObject.class);
+
+            if (javaClassNode != null) {
+                JOptionPane.showMessageDialog(null, "Selected");
+            }
+            
+//            ExtendedJavaDataObject obj = getLookup().lookup(ExtendedJavaDataObject.class);
+//            JOptionPane.showMessageDialog(null, "Hello from " + obj);
+        }
+
+//        @Override
+//        public void resultChanged(LookupEvent le) {
+////            Collection<? extends Event> allEvents = result.allInstances();
+////            if (!allEvents.isEmpty()) {
+////                Event event = allEvents.iterator().next();
+////                jLabel1.setText(Integer.toString(event.getIndex()));
+////                jLabel2.setText(event.getDate().toString());
+////            } else {
+////                jLabel1.setText("[no selection]");
+////                jLabel2.setText("");
+////            }
+//
+//            int selected = lkpInfo.allInstances().size();
+//
+//            if (selected == 0) {
+//                JOptionPane.showMessageDialog(null, "Selected");
+//            } else {
+//                JOptionPane.showMessageDialog(null, "Not selected");
+//            }
+//        }
+    }
+}
+
+class Test {
+
+}
+
+interface Tester {
+
 }
