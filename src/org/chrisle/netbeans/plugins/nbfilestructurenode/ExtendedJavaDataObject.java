@@ -2,6 +2,8 @@ package org.chrisle.netbeans.plugins.nbfilestructurenode;
 
 import java.awt.Image;
 import java.awt.event.ActionEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -17,6 +19,7 @@ import org.netbeans.api.java.source.Task;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
+import org.openide.explorer.ExplorerManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.MIMEResolver;
 import org.openide.loaders.DataNode;
@@ -240,66 +243,44 @@ public class ExtendedJavaDataObject extends MultiDataObject {
         }
 
         @Override
-        public Action[] getActions(boolean context) {
-            return new Action[]{new MyAction()};
+        public Action getPreferredAction() {
+            return new JavaClassNodeAction();
         }
 
         public JavaClassNode() {
             super(Children.LEAF);
-        }
-    }
+            
+            this.addPropertyChangeListener(new PropertyChangeListener() {
+                public void propertyChange(PropertyChangeEvent evt) {
+                    if (evt.getPropertyName().equalsIgnoreCase("selectedNodes")) {
 
-    private final class MyAction extends AbstractAction implements LookupListener {
-        private Lookup context;
-        Lookup.Result<JavaClassNode> lkpInfo;
-
-        public MyAction() {
-            this(Utilities.actionsGlobalContext());
-        }
-
-        public MyAction(Lookup context) {
-            this.context = context;
-
-            //The thing we want to listen for the presence or absence of
-            //on the global selection
-//            lkpInfo = context.lookupResult(JavaClassNode.class);
-//            lkpInfo.addLookupListener(this);
-//            resultChanged(null);
-            Lookup.Result res = context.lookupResult(JavaClassNode.class);
-            res.addLookupListener(new LookupListener() {
-                public void resultChanged(LookupEvent evt) {
-                    Collection c = ((Lookup.Result) evt.getSource()).allInstances();
-                    //do something with the collection of 0 or more instances - the collection has changed
-
-                    if (!c.isEmpty()) {
-                        JOptionPane.showMessageDialog(null, "Selected");
+                        Node[] selectedNodes = (Node[]) evt.getNewValue();
+                        if (selectedNodes.length > 0) {
+                            Node node = selectedNodes[0];
+                            node.getPreferredAction().actionPerformed(null);
+                        }
                     }
                 }
             });
         }
+    }
 
-        @Override
-        public void actionPerformed(ActionEvent e) {
+    private final class JavaClassNodeAction extends AbstractAction {
+
+        private Lookup context;
+        Lookup.Result<JavaClassNode> lkpInfo;
+
+        public JavaClassNodeAction() {
+            this(Utilities.actionsGlobalContext());
+        }
+
+        public JavaClassNodeAction(Lookup context) {
+            this.context = context;
         }
 
         @Override
-        public void resultChanged(LookupEvent evt) {
-//            Collection c = ((Lookup.Result<JavaClassNode>) evt.getSource()).allInstances();
-//            
-//            if (c.isEmpty()) {
-//                 JOptionPane.showMessageDialog(null, "Selected");
-//            } else {
-//                 JOptionPane.showMessageDialog(null, "Not Selected");
-//            }
-
-//            JavaClassNode javaClassNode = Utilities.actionsGlobalContext().lookup(JavaClassNode.class);
-//            int selected = lkpInfo.allInstances().size();
-//
-//            if (selected == 0) {
-//                JOptionPane.showMessageDialog(null, "Selected");
-//            } else {
-//                JOptionPane.showMessageDialog(null, "Not selected");
-//            }
+        public void actionPerformed(ActionEvent e) {
+            JOptionPane.showMessageDialog(null, "Double clicked");
         }
     }
 }
