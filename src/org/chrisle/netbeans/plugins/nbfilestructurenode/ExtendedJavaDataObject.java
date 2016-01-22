@@ -2,12 +2,13 @@ package org.chrisle.netbeans.plugins.nbfilestructurenode;
 
 import java.awt.Image;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import javax.lang.model.element.TypeElement;
-import static javax.swing.Action.NAME;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JOptionPane;
 import org.netbeans.api.java.source.CompilationController;
 import org.netbeans.api.java.source.JavaSource;
@@ -31,6 +32,7 @@ import org.openide.util.Exceptions;
 import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
 import org.openide.util.LookupEvent;
+import org.openide.util.LookupListener;
 import org.openide.util.NbBundle.Messages;
 import org.openide.util.Utilities;
 
@@ -237,68 +239,49 @@ public class ExtendedJavaDataObject extends MultiDataObject {
             return icon;
         }
 
-//        @Override
-//        public Action[] getActions(boolean context) {
-//            return new Action[]{new MyAction()};
-//        }
+        @Override
+        public Action[] getActions(boolean context) {
+            return new Action[]{new MyAction()};
+        }
 
         public JavaClassNode() {
             super(Children.LEAF);
         }
     }
 
-    private final class MyAction implements ActionListener {
+    private final class MyAction extends AbstractAction implements LookupListener {
         private Lookup context;
-        Lookup.Result<ExtendedJavaDataObject> lkpInfo;
+        Lookup.Result<JavaClassNode> lkpInfo;
         
-//        public MyAction() {
-//            this(Utilities.actionsGlobalContext());
-//        }
+        public MyAction() {
+            this(Utilities.actionsGlobalContext());
+        }
         
-//        public MyAction(Lookup context) {
-//            putValue(NAME, "Do Smth");
-//            
-//            this.context = context;
-//            
-//            //The thing we want to listen for the presence or absence of
-//        //on the global selection
-//            lkpInfo = context.lookupResult(ExtendedJavaDataObject.class);
-//            lkpInfo.addLookupListener(this);
-//            resultChanged(null);
-//        }
+        public MyAction(Lookup context) {
+            this.context = context;
+            
+            //The thing we want to listen for the presence or absence of
+            //on the global selection
+            lkpInfo = context.lookupResult(JavaClassNode.class);
+            lkpInfo.addLookupListener(this);
+            resultChanged(null);
+        }
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            ExtendedJavaDataObject javaClassNode = Utilities.actionsGlobalContext().lookup(ExtendedJavaDataObject.class);
-
-            if (javaClassNode != null) {
-                JOptionPane.showMessageDialog(null, "Selected");
-            }
-            
-//            ExtendedJavaDataObject obj = getLookup().lookup(ExtendedJavaDataObject.class);
-//            JOptionPane.showMessageDialog(null, "Hello from " + obj);
         }
+        
+        @Override
+        public void resultChanged(LookupEvent le) {
+//            JavaClassNode javaClassNode = Utilities.actionsGlobalContext().lookup(JavaClassNode.class);
+            int selected = lkpInfo.allInstances().size();
 
-//        @Override
-//        public void resultChanged(LookupEvent le) {
-////            Collection<? extends Event> allEvents = result.allInstances();
-////            if (!allEvents.isEmpty()) {
-////                Event event = allEvents.iterator().next();
-////                jLabel1.setText(Integer.toString(event.getIndex()));
-////                jLabel2.setText(event.getDate().toString());
-////            } else {
-////                jLabel1.setText("[no selection]");
-////                jLabel2.setText("");
-////            }
-//
-//            int selected = lkpInfo.allInstances().size();
-//
-//            if (selected == 0) {
-//                JOptionPane.showMessageDialog(null, "Selected");
-//            } else {
-//                JOptionPane.showMessageDialog(null, "Not selected");
-//            }
-//        }
+            if (selected == 0) {
+                JOptionPane.showMessageDialog(null, "Selected");
+            } else {
+                JOptionPane.showMessageDialog(null, "Not selected");
+            }
+        }
     }
 }
 
