@@ -252,35 +252,54 @@ public class ExtendedJavaDataObject extends MultiDataObject {
     private final class MyAction extends AbstractAction implements LookupListener {
         private Lookup context;
         Lookup.Result<JavaClassNode> lkpInfo;
-        
+
         public MyAction() {
             this(Utilities.actionsGlobalContext());
         }
-        
+
         public MyAction(Lookup context) {
             this.context = context;
-            
+
             //The thing we want to listen for the presence or absence of
             //on the global selection
-            lkpInfo = context.lookupResult(JavaClassNode.class);
-            lkpInfo.addLookupListener(this);
-            resultChanged(null);
+//            lkpInfo = context.lookupResult(JavaClassNode.class);
+//            lkpInfo.addLookupListener(this);
+//            resultChanged(null);
+            Lookup.Result res = context.lookupResult(JavaClassNode.class);
+            res.addLookupListener(new LookupListener() {
+                public void resultChanged(LookupEvent evt) {
+                    Collection c = ((Lookup.Result) evt.getSource()).allInstances();
+                    //do something with the collection of 0 or more instances - the collection has changed
+
+                    if (!c.isEmpty()) {
+                        JOptionPane.showMessageDialog(null, "Selected");
+                    }
+                }
+            });
         }
 
         @Override
         public void actionPerformed(ActionEvent e) {
         }
-        
-        @Override
-        public void resultChanged(LookupEvent le) {
-//            JavaClassNode javaClassNode = Utilities.actionsGlobalContext().lookup(JavaClassNode.class);
-            int selected = lkpInfo.allInstances().size();
 
-            if (selected == 0) {
-                JOptionPane.showMessageDialog(null, "Selected");
-            } else {
-                JOptionPane.showMessageDialog(null, "Not selected");
-            }
+        @Override
+        public void resultChanged(LookupEvent evt) {
+//            Collection c = ((Lookup.Result<JavaClassNode>) evt.getSource()).allInstances();
+//            
+//            if (c.isEmpty()) {
+//                 JOptionPane.showMessageDialog(null, "Selected");
+//            } else {
+//                 JOptionPane.showMessageDialog(null, "Not Selected");
+//            }
+
+//            JavaClassNode javaClassNode = Utilities.actionsGlobalContext().lookup(JavaClassNode.class);
+//            int selected = lkpInfo.allInstances().size();
+//
+//            if (selected == 0) {
+//                JOptionPane.showMessageDialog(null, "Selected");
+//            } else {
+//                JOptionPane.showMessageDialog(null, "Not selected");
+//            }
         }
     }
 }
