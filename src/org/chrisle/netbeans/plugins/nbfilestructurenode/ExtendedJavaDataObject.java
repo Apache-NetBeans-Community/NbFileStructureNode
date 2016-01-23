@@ -2,11 +2,8 @@ package org.chrisle.netbeans.plugins.nbfilestructurenode;
 
 import java.awt.Image;
 import java.awt.event.ActionEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import javax.lang.model.element.TypeElement;
 import javax.swing.AbstractAction;
@@ -19,7 +16,6 @@ import org.netbeans.api.java.source.Task;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
-import org.openide.explorer.ExplorerManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.MIMEResolver;
 import org.openide.loaders.DataNode;
@@ -34,8 +30,6 @@ import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
 import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
-import org.openide.util.LookupEvent;
-import org.openide.util.LookupListener;
 import org.openide.util.NbBundle.Messages;
 import org.openide.util.Utilities;
 
@@ -249,19 +243,6 @@ public class ExtendedJavaDataObject extends MultiDataObject {
 
         public JavaClassNode() {
             super(Children.LEAF);
-            
-            this.addPropertyChangeListener(new PropertyChangeListener() {
-                public void propertyChange(PropertyChangeEvent evt) {
-                    if (evt.getPropertyName().equalsIgnoreCase("selectedNodes")) {
-
-                        Node[] selectedNodes = (Node[]) evt.getNewValue();
-                        if (selectedNodes.length > 0) {
-                            Node node = selectedNodes[0];
-                            node.getPreferredAction().actionPerformed(null);
-                        }
-                    }
-                }
-            });
         }
     }
 
