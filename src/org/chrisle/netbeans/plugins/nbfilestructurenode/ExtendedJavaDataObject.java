@@ -103,7 +103,6 @@ import org.openide.util.Utilities;
     )
 })
 public class ExtendedJavaDataObject extends MultiDataObject {
-
     public static List _list = new ArrayList();
 
     public static Image getIconForElement(TypeElement te) {
@@ -174,15 +173,23 @@ public class ExtendedJavaDataObject extends MultiDataObject {
         return dataNode;
     }
 
+    private JavaSource _js;
+
+    public JavaSource getJs() {
+        return _js;
+    }
+
     private List<TypeElement> getElementsFromFile(FileObject fObj) throws IllegalArgumentException {
         final List<TypeElement> result = new ArrayList<>();
-        JavaSource js = JavaSource.forFileObject(fObj);
-        if (js == null) {
+
+        _js = JavaSource.forFileObject(fObj);
+
+        if (_js == null) {
             return result;
         }
-        try {
-            js.runUserActionTask(new Task<CompilationController>() {
 
+        try {
+            _js.runUserActionTask(new Task<CompilationController>() {
                 @Override
                 public void run(CompilationController cc) throws Exception {
                     cc.toPhase(Phase.ELEMENTS_RESOLVED);
@@ -195,11 +202,11 @@ public class ExtendedJavaDataObject extends MultiDataObject {
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
         }
+
         return result;
     }
 
     private class JavaChildFactory extends ChildFactory<TypeElement> {
-
         private final List<TypeElement> elements;
 
         public JavaChildFactory(final List<TypeElement> list) {
@@ -228,7 +235,6 @@ public class ExtendedJavaDataObject extends MultiDataObject {
     }
 
     private class JavaClassNode extends AbstractNode {
-
         Image icon;
 
         @Override
@@ -247,7 +253,6 @@ public class ExtendedJavaDataObject extends MultiDataObject {
     }
 
     private final class JavaClassNodeAction extends AbstractAction {
-
         private Lookup context;
         Lookup.Result<JavaClassNode> lkpInfo;
 
@@ -261,15 +266,8 @@ public class ExtendedJavaDataObject extends MultiDataObject {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            JOptionPane.showMessageDialog(null, "Double clicked");
+            JavaClassNode javaClassNodeLkp = this.context.lookup(JavaClassNode.class);
+            JOptionPane.showMessageDialog(null, javaClassNodeLkp.getDisplayName());
         }
     }
-}
-
-class Test {
-
-}
-
-interface Tester {
-
 }
