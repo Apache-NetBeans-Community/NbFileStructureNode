@@ -113,8 +113,11 @@ public class ExtendedJavaDataObject extends MultiDataObject {
                 case CLASS:
                     if(te.getModifiers().contains(Modifier.ABSTRACT)) {
                         result = ImageUtilities.loadImage("org/chrisle/netbeans/plugins/nbfilestructurenode/resources/abstractClass.png");
-                    } else if(te.getClass().isInstance(Exception.class)) {
-                        result = ImageUtilities.loadImage("org/chrisle/netbeans/plugins/nbfilestructurenode/resources/exceptionClass.png");
+                    } else if(te.getModifiers().contains(Modifier.FINAL)) {
+                        result = ImageUtilities.mergeImages(ImageUtilities.loadImage("org/chrisle/netbeans/plugins/nbfilestructurenode/resources/class.png"),
+                                                            ImageUtilities.loadImage("org/chrisle/netbeans/plugins/nbfilestructurenode/resources/finalMark_dark.png"), 0, 0);
+//                    else if(te.getClass().isInstance(Exception.class)) {
+//                        result = ImageUtilities.loadImage("org/chrisle/netbeans/plugins/nbfilestructurenode/resources/exceptionClass.png");
                     } else {
                         result = ImageUtilities.loadImage("org/chrisle/netbeans/plugins/nbfilestructurenode/resources/class.png");
                     }
@@ -128,9 +131,6 @@ public class ExtendedJavaDataObject extends MultiDataObject {
                 case ANNOTATION_TYPE:
                     result = ImageUtilities.loadImage("org/chrisle/netbeans/plugins/nbfilestructurenode/resources/annotationtype.png");
                     break;
-//                case EXCEPTION_PARAMETER:
-//                    result = ImageUtilities.loadImage("org/chrisle/netbeans/plugins/nbfilestructurenode/resources/exceptionClass.png");
-//                    break;
                 default:
                     break;
             }
@@ -167,7 +167,7 @@ public class ExtendedJavaDataObject extends MultiDataObject {
                     return icon;
                 } else {
                     //show default ?
-                    return ImageUtilities.loadImage("org/chrisle/netbeans/plugins/nbfilestructurenode/resources/javaClassFile.gif");
+                    return ImageUtilities.loadImage("org/chrisle/netbeans/plugins/nbfilestructurenode/resources/class.png");
                 }
             }
 
