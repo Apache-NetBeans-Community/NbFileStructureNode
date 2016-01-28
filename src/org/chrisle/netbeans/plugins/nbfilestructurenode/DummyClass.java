@@ -12,6 +12,10 @@ abstract class test {
     
 }
 
+final class foo {
+    
+}
+
 interface tester2 {
     
 }
