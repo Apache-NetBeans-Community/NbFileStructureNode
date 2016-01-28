@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -110,19 +111,25 @@ public class ExtendedJavaDataObject extends MultiDataObject {
         if (null != te.getKind()) {
             switch (te.getKind()) {
                 case CLASS:
-                    result = ImageUtilities.loadImage("org/chrisle/netbeans/plugins/nbfilestructurenode/resources/classTypeJavaClass.png");
+                    if(te.getModifiers().contains(Modifier.ABSTRACT)) {
+                        result = ImageUtilities.loadImage("org/chrisle/netbeans/plugins/nbfilestructurenode/resources/abstractClass.png");
+                    } else if(te.getClass().isInstance(Exception.class)) {
+                        result = ImageUtilities.loadImage("org/chrisle/netbeans/plugins/nbfilestructurenode/resources/exceptionClass.png");
+                    } else {
+                        result = ImageUtilities.loadImage("org/chrisle/netbeans/plugins/nbfilestructurenode/resources/class.png");
+                    }
                     break;
                 case INTERFACE:
-                    result = ImageUtilities.loadImage("org/chrisle/netbeans/plugins/nbfilestructurenode/resources/classTypeInterface.png");
+                    result = ImageUtilities.loadImage("org/chrisle/netbeans/plugins/nbfilestructurenode/resources/interface.png");
                     break;
                 case ENUM:
-                    result = ImageUtilities.loadImage("org/chrisle/netbeans/plugins/nbfilestructurenode/resources/classTypeEnum.png");
+                    result = ImageUtilities.loadImage("org/chrisle/netbeans/plugins/nbfilestructurenode/resources/enum.png");
                     break;
                 case ANNOTATION_TYPE:
-                    result = ImageUtilities.loadImage("org/chrisle/netbeans/plugins/nbfilestructurenode/resources/classTypeAnnot.png");
+                    result = ImageUtilities.loadImage("org/chrisle/netbeans/plugins/nbfilestructurenode/resources/annotationtype.png");
                     break;
 //                case EXCEPTION_PARAMETER:
-//                    result = ImageUtilities.loadImage("org/chrisle/netbeans/plugins/nbfilestructurenode/resources/classTypeException.png");
+//                    result = ImageUtilities.loadImage("org/chrisle/netbeans/plugins/nbfilestructurenode/resources/exceptionClass.png");
 //                    break;
                 default:
                     break;
