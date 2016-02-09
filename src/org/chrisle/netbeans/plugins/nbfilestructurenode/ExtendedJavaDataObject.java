@@ -5,7 +5,6 @@ import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.Element;
 import javax.swing.AbstractAction;
@@ -109,6 +108,7 @@ public class ExtendedJavaDataObject extends MultiDataObject {
 
     public static Image getIconForElement(Element te) {
         Image result = null;
+    
         if (null != te.getKind()) {
             switch (te.getKind()) {
                 case CLASS:
@@ -232,8 +232,6 @@ public class ExtendedJavaDataObject extends MultiDataObject {
             return true;
         }
         
-        
-
         @Override
         protected Node createNodeForKey(Element te) {
             JavaClassNode childNode = new JavaClassNode();
