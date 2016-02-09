@@ -5,8 +5,9 @@ import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
-import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.Element;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JOptionPane;
@@ -106,7 +107,7 @@ import org.openide.util.Utilities;
 public class ExtendedJavaDataObject extends MultiDataObject {
     public static List _list = new ArrayList();
 
-    public static Image getIconForElement(TypeElement te) {
+    public static Image getIconForElement(Element te) {
         Image result = null;
         if (null != te.getKind()) {
             switch (te.getKind()) {
@@ -151,11 +152,11 @@ public class ExtendedJavaDataObject extends MultiDataObject {
 
     @Override
     protected Node createNodeDelegate() {
-        List<TypeElement> children = getElementsFromFile(getPrimaryFile());
+        List<Element> children = getElementsFromFile(getPrimaryFile());
         Image iconForElement = null;
 
         if (!children.isEmpty()) {
-            TypeElement firstElement = children.iterator().next();
+            Element firstElement = children.iterator().next();
             iconForElement = getIconForElement(firstElement);
         }
 
@@ -186,8 +187,8 @@ public class ExtendedJavaDataObject extends MultiDataObject {
         return _js;
     }
 
-    private List<TypeElement> getElementsFromFile(FileObject fObj) throws IllegalArgumentException {
-        final List<TypeElement> result = new ArrayList<>();
+    private List<Element> getElementsFromFile(FileObject fObj) throws IllegalArgumentException {
+        final List<Element> result = new ArrayList<>();
 
         _js = JavaSource.forFileObject(fObj);
 
@@ -201,7 +202,7 @@ public class ExtendedJavaDataObject extends MultiDataObject {
                 public void run(CompilationController cc) throws Exception {
                     cc.toPhase(Phase.ELEMENTS_RESOLVED);
 
-                    for (TypeElement te : cc.getTopLevelElements()) {
+                    for (Element te : cc.getTopLevelElements()) {
                         result.add(te);
                     }
                 }
@@ -212,26 +213,34 @@ public class ExtendedJavaDataObject extends MultiDataObject {
 
         return result;
     }
+    
+    private List<Element> typeElemenChilds;
 
-    private class JavaChildFactory extends ChildFactory<TypeElement> {
-        private final List<TypeElement> elements;
+    private class JavaChildFactory extends ChildFactory<Element> {
+        private final List<Element> elements;
 
-        public JavaChildFactory(final List<TypeElement> list) {
+        public JavaChildFactory(final List<Element> list) {
             this.elements = list;
         }
 
         @Override
-        protected boolean createKeys(final List<TypeElement> elements) {
-            elements.addAll(this.elements);
+        protected boolean createKeys(final List<Element> elements) {
+            if (this.elements != null) {
+                elements.addAll(this.elements);
+            }
 
             return true;
         }
+        
+        
 
         @Override
-        protected Node createNodeForKey(TypeElement te) {
+        protected Node createNodeForKey(Element te) {
             JavaClassNode childNode = new JavaClassNode();
             childNode.setDisplayName(te.getSimpleName().toString());
-
+            
+            typeElemenChilds = (List<Element>) te.getEnclosedElements();
+            
             Image icon = getIconForElement(te);
             if (icon != null) {
                 childNode.icon = icon;
@@ -243,7 +252,7 @@ public class ExtendedJavaDataObject extends MultiDataObject {
 
     private class JavaClassNode extends AbstractNode {
         Image icon;
-
+        
         @Override
         public Image getIcon(int type) {
             return icon;
@@ -255,7 +264,7 @@ public class ExtendedJavaDataObject extends MultiDataObject {
         }
 
         public JavaClassNode() {
-            super(Children.LEAF);
+            super(Children.create(new JavaChildFactory(typeElemenChilds), true));
         }
     }
 
