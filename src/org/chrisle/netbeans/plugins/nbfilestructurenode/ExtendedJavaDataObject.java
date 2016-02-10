@@ -189,10 +189,6 @@ public class ExtendedJavaDataObject extends MultiDataObject {
 
     private JavaSource _js;
 
-    public JavaSource getJs() {
-        return _js;
-    }
-
     private List<Element> getElementsFromFile(FileObject fObj) throws IllegalArgumentException {
         final List<Element> result = new ArrayList<>();
 
@@ -220,7 +216,7 @@ public class ExtendedJavaDataObject extends MultiDataObject {
         return result;
     }
     
-    private List<Element> typeElemenChilds;
+    private List<Element> typeElemenChilds = new ArrayList<>();
 
     private class JavaChildFactory extends ChildFactory<Element> {
         private final List<Element> elements;
@@ -269,6 +265,7 @@ public class ExtendedJavaDataObject extends MultiDataObject {
 
         public JavaClassNode() {
             super(Children.create(new JavaChildFactory(typeElemenChilds), true));
+//            super(Children.LEAF);
         }
     }
 
