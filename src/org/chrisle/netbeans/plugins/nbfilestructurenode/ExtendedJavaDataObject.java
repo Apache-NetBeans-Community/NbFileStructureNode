@@ -132,6 +132,12 @@ public class ExtendedJavaDataObject extends MultiDataObject {
                 case ANNOTATION_TYPE:
                     result = ImageUtilities.loadImage("org/chrisle/netbeans/plugins/nbfilestructurenode/resources/annotationtype.png");
                     break;
+                case METHOD:
+                    result = ImageUtilities.loadImage("org/chrisle/netbeans/plugins/nbfilestructurenode/resources/method.png");
+                    break;
+                case FIELD:
+                    result = ImageUtilities.loadImage("org/chrisle/netbeans/plugins/nbfilestructurenode/resources/field.png");
+                    break;
                 default:
                     break;
             }
@@ -174,7 +180,7 @@ public class ExtendedJavaDataObject extends MultiDataObject {
 
             @Override
             public Image getOpenedIcon(int type) {
-                return getIcon(type);
+//                return getIcon(type);
             }
         };
 
