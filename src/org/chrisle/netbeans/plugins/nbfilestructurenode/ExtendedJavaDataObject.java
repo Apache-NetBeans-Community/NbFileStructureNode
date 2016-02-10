@@ -180,7 +180,7 @@ public class ExtendedJavaDataObject extends MultiDataObject {
 
             @Override
             public Image getOpenedIcon(int type) {
-//                return getIcon(type);
+                return getIcon(type);
             }
         };
 
