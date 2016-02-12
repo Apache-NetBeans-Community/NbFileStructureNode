@@ -159,19 +159,29 @@ public class ExtendedJavaDataObject extends MultiDataObject {
     public Lookup getLookup() {
         return getCookieSet().getLookup();
     }
+    
+    private List<Element> _children;
+
+    public List<Element> getChildren() {
+        return _children;
+    }
+
+    public void setChildren(List<Element> _children) {
+        this._children = _children;
+    }
 
     @Override
     protected Node createNodeDelegate() {
-        List<Element> children = getElementsFromFile(getPrimaryFile());
+        _children = getElementsFromFile(getPrimaryFile());
         Image iconForElement = null;
 
-        if (!children.isEmpty()) {
-            Element firstElement = children.iterator().next();
+        if (!_children.isEmpty()) {
+            Element firstElement = _children.iterator().next();
             iconForElement = getIconForElement(firstElement);
         }
 
         final Image icon = iconForElement;
-        DataNode dataNode = new DataNode(this, Children.create(new JavaChildFactory(children), true), getLookup()) {
+        DataNode dataNode = new DataNode(this, Children.create(new JavaChildFactory(_children), true), getLookup()) {
             @Override
             public Image getIcon(int type) {
                 if (null != icon) {
