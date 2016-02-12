@@ -5,13 +5,11 @@ import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import org.openide.text.Line;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.Element;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.JOptionPane;
 import org.netbeans.api.java.source.CompilationController;
 import org.netbeans.api.java.source.JavaSource;
 import org.netbeans.api.java.source.JavaSource.Phase;
@@ -38,8 +36,6 @@ import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
 import org.openide.util.Utilities;
-import org.openide.windows.TopComponent;
-import org.openide.windows.WindowManager;
 
 /**
  *
@@ -295,16 +291,16 @@ public class ExtendedJavaDataObject extends MultiDataObject {
         @Override
         public void actionPerformed(ActionEvent e) {
             try {
-                String name = this.context.lookup(JavaClassNode.class).getName();
                 JavaClassNode javaClassNodeLkp = this.context.lookup(JavaClassNode.class);
                 FileObject primaryFile = getCookieSet().getLookup().lookup(ExtendedJavaDataObject.class).getPrimaryFile();
                 DataObject dobj = DataObject.find(primaryFile);
+                String name = javaClassNodeLkp.getDisplayName();
 
                 dobj.getLookup().lookup(OpenCookie.class).open();
 
                 LineCookie lc = dobj.getLookup().lookup(LineCookie.class);
                 List<? extends Line> lines = lc.getLineSet().getLines();
-
+                
                 for (Line line : lines) {
                     if (line.getText().contains(name)) {
                         line.show(Line.ShowOpenType.OPEN, Line.ShowVisibilityType.FRONT);
