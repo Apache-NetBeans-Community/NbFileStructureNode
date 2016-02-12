@@ -5,6 +5,8 @@ import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import org.openide.text.Line;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.Element;
 import javax.swing.AbstractAction;
@@ -17,11 +19,14 @@ import org.netbeans.api.java.source.Task;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
+import org.openide.cookies.LineCookie;
+import org.openide.cookies.OpenCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.MIMEResolver;
 import org.openide.loaders.DataNode;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectExistsException;
+import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.loaders.MultiDataObject;
 import org.openide.loaders.MultiFileLoader;
 import org.openide.nodes.AbstractNode;
@@ -33,6 +38,8 @@ import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
 import org.openide.util.Utilities;
+import org.openide.windows.TopComponent;
+import org.openide.windows.WindowManager;
 
 /**
  *
@@ -104,19 +111,20 @@ import org.openide.util.Utilities;
     )
 })
 public class ExtendedJavaDataObject extends MultiDataObject {
+
     public static List _list = new ArrayList();
 
     public static Image getIconForElement(Element te) {
         Image result = null;
-    
+
         if (null != te.getKind()) {
             switch (te.getKind()) {
                 case CLASS:
-                    if(te.getModifiers().contains(Modifier.ABSTRACT)) {
+                    if (te.getModifiers().contains(Modifier.ABSTRACT)) {
                         result = ImageUtilities.loadImage("org/chrisle/netbeans/plugins/nbfilestructurenode/resources/abstractClass.png");
-                    } else if(te.getModifiers().contains(Modifier.FINAL)) {
+                    } else if (te.getModifiers().contains(Modifier.FINAL)) {
                         result = ImageUtilities.mergeImages(ImageUtilities.loadImage("org/chrisle/netbeans/plugins/nbfilestructurenode/resources/class.png"),
-                                                            ImageUtilities.loadImage("org/chrisle/netbeans/plugins/nbfilestructurenode/resources/finalMark_dark.png"), 0, 0);
+                                ImageUtilities.loadImage("org/chrisle/netbeans/plugins/nbfilestructurenode/resources/finalMark_dark.png"), 0, 0);
 //                    else if(te.getClass().isInstance(Exception.class)) {
 //                        result = ImageUtilities.loadImage("org/chrisle/netbeans/plugins/nbfilestructurenode/resources/exceptionClass.png");
                     } else {
@@ -215,10 +223,11 @@ public class ExtendedJavaDataObject extends MultiDataObject {
 
         return result;
     }
-    
+
     private List<Element> typeElemenChilds = new ArrayList<>();
 
     private class JavaChildFactory extends ChildFactory<Element> {
+
         private final List<Element> elements;
 
         public JavaChildFactory(final List<Element> list) {
@@ -233,14 +242,14 @@ public class ExtendedJavaDataObject extends MultiDataObject {
 
             return true;
         }
-        
+
         @Override
         protected Node createNodeForKey(Element te) {
             JavaClassNode childNode = new JavaClassNode();
             childNode.setDisplayName(te.getSimpleName().toString());
-            
+
             typeElemenChilds = (List<Element>) te.getEnclosedElements();
-            
+
             Image icon = getIconForElement(te);
             if (icon != null) {
                 childNode.icon = icon;
@@ -251,8 +260,9 @@ public class ExtendedJavaDataObject extends MultiDataObject {
     }
 
     private class JavaClassNode extends AbstractNode {
+
         Image icon;
-        
+
         @Override
         public Image getIcon(int type) {
             return icon;
@@ -270,6 +280,7 @@ public class ExtendedJavaDataObject extends MultiDataObject {
     }
 
     private final class JavaClassNodeAction extends AbstractAction {
+
         private Lookup context;
         Lookup.Result<JavaClassNode> lkpInfo;
 
@@ -283,8 +294,25 @@ public class ExtendedJavaDataObject extends MultiDataObject {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            JavaClassNode javaClassNodeLkp = this.context.lookup(JavaClassNode.class);
-            JOptionPane.showMessageDialog(null, javaClassNodeLkp.getDisplayName());
+            try {
+                String name = this.context.lookup(JavaClassNode.class).getName();
+                JavaClassNode javaClassNodeLkp = this.context.lookup(JavaClassNode.class);
+                FileObject primaryFile = getCookieSet().getLookup().lookup(ExtendedJavaDataObject.class).getPrimaryFile();
+                DataObject dobj = DataObject.find(primaryFile);
+
+                dobj.getLookup().lookup(OpenCookie.class).open();
+
+                LineCookie lc = dobj.getLookup().lookup(LineCookie.class);
+                List<? extends Line> lines = lc.getLineSet().getLines();
+
+                for (Line line : lines) {
+                    if (line.getText().contains(name)) {
+                        line.show(Line.ShowOpenType.OPEN, Line.ShowVisibilityType.FRONT);
+                    }
+                }
+            } catch (DataObjectNotFoundException ex) {
+                Exceptions.printStackTrace(ex);
+            }
         }
     }
 }
