@@ -109,6 +109,9 @@ import org.openide.util.Utilities;
 public class ExtendedJavaDataObject extends MultiDataObject {
 
     public static List _list = new ArrayList();
+    
+    private static String classImage = "org/chrisle/netbeans/plugins/nbfilestructurenode/resources/class.png";
+    private static String methodImage = "org/chrisle/netbeans/plugins/nbfilestructurenode/resources/method.png";
 
     public static Image getIconForElement(Element te) {
         Image result = null;
@@ -119,12 +122,14 @@ public class ExtendedJavaDataObject extends MultiDataObject {
                     if (te.getModifiers().contains(Modifier.ABSTRACT)) {
                         result = ImageUtilities.loadImage("org/chrisle/netbeans/plugins/nbfilestructurenode/resources/abstractClass.png");
                     } else if (te.getModifiers().contains(Modifier.FINAL)) {
-                        result = ImageUtilities.mergeImages(ImageUtilities.loadImage("org/chrisle/netbeans/plugins/nbfilestructurenode/resources/class.png"),
+                        result = ImageUtilities.mergeImages(ImageUtilities.loadImage(classImage),
                                 ImageUtilities.loadImage("org/chrisle/netbeans/plugins/nbfilestructurenode/resources/finalMark_dark.png"), 0, 0);
 //                    else if(te.getClass().isInstance(Exception.class)) {
 //                        result = ImageUtilities.loadImage("org/chrisle/netbeans/plugins/nbfilestructurenode/resources/exceptionClass.png");
+                    } else if(te.getModifiers().contains(Modifier.PUBLIC)) {
+                        
                     } else {
-                        result = ImageUtilities.loadImage("org/chrisle/netbeans/plugins/nbfilestructurenode/resources/class.png");
+                        result = ImageUtilities.loadImage(classImage);
                     }
                     break;
                 case INTERFACE:
@@ -137,7 +142,12 @@ public class ExtendedJavaDataObject extends MultiDataObject {
                     result = ImageUtilities.loadImage("org/chrisle/netbeans/plugins/nbfilestructurenode/resources/annotationtype.png");
                     break;
                 case METHOD:
-                    result = ImageUtilities.loadImage("org/chrisle/netbeans/plugins/nbfilestructurenode/resources/method.png");
+                    if (te.getModifiers().contains(Modifier.PUBLIC)) {
+                        result = ImageUtilities.mergeImages(ImageUtilities.loadImage(methodImage),
+                                ImageUtilities.loadImage("org/chrisle/netbeans/plugins/nbfilestructurenode/resources/public.png"), 11, 1);
+                    } else {
+                        result = ImageUtilities.loadImage(methodImage);
+                    }
                     break;
                 case FIELD:
                     result = ImageUtilities.loadImage("org/chrisle/netbeans/plugins/nbfilestructurenode/resources/field.png");
