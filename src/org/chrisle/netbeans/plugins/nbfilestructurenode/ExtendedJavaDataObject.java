@@ -144,7 +144,7 @@ public class ExtendedJavaDataObject extends MultiDataObject {
                 case METHOD:
                     if (te.getModifiers().contains(Modifier.PUBLIC)) {
                         result = ImageUtilities.mergeImages(ImageUtilities.loadImage(methodImage),
-                                ImageUtilities.loadImage("org/chrisle/netbeans/plugins/nbfilestructurenode/resources/public.png"), 11, 1);
+                                ImageUtilities.loadImage("org/chrisle/netbeans/plugins/nbfilestructurenode/resources/public.png"), 15, 1);
                     } else {
                         result = ImageUtilities.loadImage(methodImage);
                     }
