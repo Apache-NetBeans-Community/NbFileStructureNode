@@ -1,15 +1,22 @@
 package org.chrisle.netbeans.plugins.nbfilestructurenode;
 
+import static com.sun.glass.ui.Cursor.setVisible;
+import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import javax.imageio.ImageIO;
 import org.openide.text.Line;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.Element;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
 import org.netbeans.api.java.source.CompilationController;
 import org.netbeans.api.java.source.JavaSource;
 import org.netbeans.api.java.source.JavaSource.Phase;
@@ -158,6 +165,38 @@ public class ExtendedJavaDataObject extends MultiDataObject {
         }
 
         return result;
+    }
+    
+    public class ImageMerge {
+ 
+    private BufferedImage mergeImage;
+ 
+        /**
+         *
+         */
+        private Image processImages(String image1, String image2) {
+            try {
+                // load source images
+                BufferedImage image = ImageIO.read(new File(image1));
+                BufferedImage overlay = ImageIO.read(new File(image2));
+
+                // create the new image, canvas size is the max. of both image sizes
+                int w = Math.max(image.getWidth(), overlay.getWidth());
+                int h = Math.max(image.getHeight(), overlay.getHeight());
+                BufferedImage combined = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+
+                // paint both images, preserving the alpha channels
+                Graphics g = combined.getGraphics();
+                g.drawImage(image, 0, 0, null);
+                g.drawImage(overlay, 0, 0, null);
+
+                // Save as new image
+                ImageIO.write(combined, "PNG", new File("combined.png"));
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public ExtendedJavaDataObject(FileObject fo, MultiFileLoader loader) throws DataObjectExistsException {
