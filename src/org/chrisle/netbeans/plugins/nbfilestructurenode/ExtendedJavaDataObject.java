@@ -1,22 +1,11 @@
 package org.chrisle.netbeans.plugins.nbfilestructurenode;
 
-import static com.sun.glass.ui.Cursor.setVisible;
-import java.awt.Graphics;
 import java.awt.Image;
-import java.awt.event.ActionEvent;
-import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import javax.imageio.ImageIO;
-import org.openide.text.Line;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.Element;
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
 import org.netbeans.api.java.source.CompilationController;
 import org.netbeans.api.java.source.JavaSource;
 import org.netbeans.api.java.source.JavaSource.Phase;
@@ -24,17 +13,13 @@ import org.netbeans.api.java.source.Task;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
-import org.openide.cookies.LineCookie;
-import org.openide.cookies.OpenCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.MIMEResolver;
 import org.openide.loaders.DataNode;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectExistsException;
-import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.loaders.MultiDataObject;
 import org.openide.loaders.MultiFileLoader;
-import org.openide.nodes.AbstractNode;
 import org.openide.nodes.ChildFactory;
 import org.openide.nodes.FilterNode.Children;
 import org.openide.nodes.Node;
@@ -42,7 +27,6 @@ import org.openide.util.Exceptions;
 import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
-import org.openide.util.Utilities;
 
 /**
  *
@@ -117,8 +101,9 @@ public class ExtendedJavaDataObject extends MultiDataObject {
 
     public static List _list = new ArrayList();
     
-    private static String classImage = "org/chrisle/netbeans/plugins/nbfilestructurenode/resources/class.png";
-    private static String methodImage = "org/chrisle/netbeans/plugins/nbfilestructurenode/resources/method.png";
+    private static final String CLASS_IMAGE = "org/chrisle/netbeans/plugins/nbfilestructurenode/resources/class.png";
+    private static final String METHOD_IMAGE = "org/chrisle/netbeans/plugins/nbfilestructurenode/resources/method.png";
+    private static final String PUBLIC_IMAGE = "org/chrisle/netbeans/plugins/nbfilestructurenode/resources/public.png";
 
     public static Image getIconForElement(Element te) {
         Image result = null;
@@ -129,14 +114,15 @@ public class ExtendedJavaDataObject extends MultiDataObject {
                     if (te.getModifiers().contains(Modifier.ABSTRACT)) {
                         result = ImageUtilities.loadImage("org/chrisle/netbeans/plugins/nbfilestructurenode/resources/abstractClass.png");
                     } else if (te.getModifiers().contains(Modifier.FINAL)) {
-                        result = ImageUtilities.mergeImages(ImageUtilities.loadImage(classImage),
+                        result = ImageUtilities.mergeImages(ImageUtilities.loadImage(CLASS_IMAGE),
                                 ImageUtilities.loadImage("org/chrisle/netbeans/plugins/nbfilestructurenode/resources/finalMark_dark.png"), 0, 0);
 //                    else if(te.getClass().isInstance(Exception.class)) {
 //                        result = ImageUtilities.loadImage("org/chrisle/netbeans/plugins/nbfilestructurenode/resources/exceptionClass.png");
                     } else if(te.getModifiers().contains(Modifier.PUBLIC)) {
-                        
+                        result = ImageUtilities.mergeImages(ImageUtilities.loadImage(CLASS_IMAGE),
+                                ImageUtilities.loadImage(PUBLIC_IMAGE), 15, 1);
                     } else {
-                        result = ImageUtilities.loadImage(classImage);
+                        result = ImageUtilities.loadImage(CLASS_IMAGE);
                     }
                     break;
                 case INTERFACE:
@@ -150,16 +136,17 @@ public class ExtendedJavaDataObject extends MultiDataObject {
                     break;
                 case METHOD:
                     if (te.getModifiers().contains(Modifier.PUBLIC)) {
-                        result = ImageUtilities.mergeImages(ImageUtilities.loadImage(methodImage),
-                                ImageUtilities.loadImage("org/chrisle/netbeans/plugins/nbfilestructurenode/resources/public.png"), 15, 1);
+                        result = ImageUtilities.mergeImages(ImageUtilities.loadImage(METHOD_IMAGE),
+                                ImageUtilities.loadImage(PUBLIC_IMAGE), 15, 1);
                     } else {
-                        result = ImageUtilities.loadImage(methodImage);
+                        result = ImageUtilities.loadImage(METHOD_IMAGE);
                     }
                     break;
                 case FIELD:
                     result = ImageUtilities.loadImage("org/chrisle/netbeans/plugins/nbfilestructurenode/resources/field.png");
                     break;
                 default:
+                    result = ImageUtilities.loadImage(CLASS_IMAGE);
                     break;
             }
         }
@@ -167,37 +154,37 @@ public class ExtendedJavaDataObject extends MultiDataObject {
         return result;
     }
     
-    public class ImageMerge {
- 
-    private BufferedImage mergeImage;
- 
-        /**
-         *
-         */
-        private Image processImages(String image1, String image2) {
-            try {
-                // load source images
-                BufferedImage image = ImageIO.read(new File(image1));
-                BufferedImage overlay = ImageIO.read(new File(image2));
-
-                // create the new image, canvas size is the max. of both image sizes
-                int w = Math.max(image.getWidth(), overlay.getWidth());
-                int h = Math.max(image.getHeight(), overlay.getHeight());
-                BufferedImage combined = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
-
-                // paint both images, preserving the alpha channels
-                Graphics g = combined.getGraphics();
-                g.drawImage(image, 0, 0, null);
-                g.drawImage(overlay, 0, 0, null);
-
-                // Save as new image
-                ImageIO.write(combined, "PNG", new File("combined.png"));
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
+//    public class ImageMerge {
+// 
+//    private BufferedImage mergeImage;
+// 
+//        /**
+//         *
+//         */
+//        private Image processImages(String image1, String image2) {
+//            try {
+//                // load source images
+//                BufferedImage image = ImageIO.read(new File(image1));
+//                BufferedImage overlay = ImageIO.read(new File(image2));
+//
+//                // create the new image, canvas size is the max. of both image sizes
+//                int w = Math.max(image.getWidth(), overlay.getWidth());
+//                int h = Math.max(image.getHeight(), overlay.getHeight());
+//                BufferedImage combined = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+//
+//                // paint both images, preserving the alpha channels
+//                Graphics g = combined.getGraphics();
+//                g.drawImage(image, 0, 0, null);
+//                g.drawImage(overlay, 0, 0, null);
+//
+//                // Save as new image
+//                ImageIO.write(combined, "PNG", new File("combined.png"));
+//
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//    }
 
     public ExtendedJavaDataObject(FileObject fo, MultiFileLoader loader) throws DataObjectExistsException {
         super(fo, loader);
@@ -237,7 +224,7 @@ public class ExtendedJavaDataObject extends MultiDataObject {
                     return icon;
                 } else {
                     //show default ?
-                    return ImageUtilities.loadImage("org/chrisle/netbeans/plugins/nbfilestructurenode/resources/class.png");
+                    return ImageUtilities.loadImage(CLASS_IMAGE);
                 }
             }
 
@@ -279,7 +266,7 @@ public class ExtendedJavaDataObject extends MultiDataObject {
         return result;
     }
 
-    private List<Element> typeElemenChilds = new ArrayList<>();
+    private List<Element> _typeElementChilds = new ArrayList<>();
 
     private class JavaChildFactory extends ChildFactory<Element> {
 
@@ -301,73 +288,22 @@ public class ExtendedJavaDataObject extends MultiDataObject {
         @Override
         protected Node createNodeForKey(Element te) {
             JavaClassNode childNode = new JavaClassNode();
-            childNode.setDisplayName(te.getSimpleName().toString());
-
-            typeElemenChilds = (List<Element>) te.getEnclosedElements();
 
             Image icon = getIconForElement(te);
+
+            childNode.setDisplayName(te.getSimpleName().toString());
+
             if (icon != null) {
                 childNode.icon = icon;
-            }
-
+            }    
+            
+//            _typeElementChilds = (List<Element>) te.getEnclosedElements();
+            
             return childNode;
         }
     }
 
-    private class JavaClassNode extends AbstractNode {
+    
 
-        Image icon;
-
-        @Override
-        public Image getIcon(int type) {
-            return icon;
-        }
-
-        @Override
-        public Action getPreferredAction() {
-            return new JavaClassNodeAction();
-        }
-
-        public JavaClassNode() {
-            super(Children.create(new JavaChildFactory(typeElemenChilds), true));
-//            super(Children.LEAF);
-        }
-    }
-
-    private final class JavaClassNodeAction extends AbstractAction {
-
-        private Lookup context;
-        Lookup.Result<JavaClassNode> lkpInfo;
-
-        public JavaClassNodeAction() {
-            this(Utilities.actionsGlobalContext());
-        }
-
-        public JavaClassNodeAction(Lookup context) {
-            this.context = context;
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            try {
-                JavaClassNode javaClassNodeLkp = this.context.lookup(JavaClassNode.class);
-                FileObject primaryFile = getCookieSet().getLookup().lookup(ExtendedJavaDataObject.class).getPrimaryFile();
-                DataObject dobj = DataObject.find(primaryFile);
-                String name = javaClassNodeLkp.getDisplayName();
-
-                dobj.getLookup().lookup(OpenCookie.class).open();
-
-                LineCookie lc = dobj.getLookup().lookup(LineCookie.class);
-                List<? extends Line> lines = lc.getLineSet().getLines();
-                
-                for (Line line : lines) {
-                    if (line.getText().contains(name)) {
-                        line.show(Line.ShowOpenType.OPEN, Line.ShowVisibilityType.FRONT);
-                    }
-                }
-            } catch (DataObjectNotFoundException ex) {
-                Exceptions.printStackTrace(ex);
-            }
-        }
-    }
+    
 }
