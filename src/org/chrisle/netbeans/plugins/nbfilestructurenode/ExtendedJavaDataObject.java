@@ -20,7 +20,6 @@ import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectExistsException;
 import org.openide.loaders.MultiDataObject;
 import org.openide.loaders.MultiFileLoader;
-import org.openide.nodes.ChildFactory;
 import org.openide.nodes.FilterNode.Children;
 import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
@@ -98,7 +97,6 @@ import org.openide.util.NbBundle.Messages;
     )
 })
 public class ExtendedJavaDataObject extends MultiDataObject {
-
     public static List _list = new ArrayList();
     
     private static final String CLASS_IMAGE = "org/chrisle/netbeans/plugins/nbfilestructurenode/resources/class.png";
@@ -154,38 +152,6 @@ public class ExtendedJavaDataObject extends MultiDataObject {
         return result;
     }
     
-//    public class ImageMerge {
-// 
-//    private BufferedImage mergeImage;
-// 
-//        /**
-//         *
-//         */
-//        private Image processImages(String image1, String image2) {
-//            try {
-//                // load source images
-//                BufferedImage image = ImageIO.read(new File(image1));
-//                BufferedImage overlay = ImageIO.read(new File(image2));
-//
-//                // create the new image, canvas size is the max. of both image sizes
-//                int w = Math.max(image.getWidth(), overlay.getWidth());
-//                int h = Math.max(image.getHeight(), overlay.getHeight());
-//                BufferedImage combined = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
-//
-//                // paint both images, preserving the alpha channels
-//                Graphics g = combined.getGraphics();
-//                g.drawImage(image, 0, 0, null);
-//                g.drawImage(overlay, 0, 0, null);
-//
-//                // Save as new image
-//                ImageIO.write(combined, "PNG", new File("combined.png"));
-//
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//    }
-
     public ExtendedJavaDataObject(FileObject fo, MultiFileLoader loader) throws DataObjectExistsException {
         super(fo, loader);
         registerEditor("text/x-java", true);
@@ -265,45 +231,4 @@ public class ExtendedJavaDataObject extends MultiDataObject {
 
         return result;
     }
-
-    private List<Element> _typeElementChilds = new ArrayList<>();
-
-    private class JavaChildFactory extends ChildFactory<Element> {
-
-        private final List<Element> elements;
-
-        public JavaChildFactory(final List<Element> list) {
-            this.elements = list;
-        }
-
-        @Override
-        protected boolean createKeys(final List<Element> elements) {
-            if (this.elements != null) {
-                elements.addAll(this.elements);
-            }
-
-            return true;
-        }
-
-        @Override
-        protected Node createNodeForKey(Element te) {
-            JavaClassNode childNode = new JavaClassNode();
-
-            Image icon = getIconForElement(te);
-
-            childNode.setDisplayName(te.getSimpleName().toString());
-
-            if (icon != null) {
-                childNode.icon = icon;
-            }    
-            
-//            _typeElementChilds = (List<Element>) te.getEnclosedElements();
-            
-            return childNode;
-        }
-    }
-
-    
-
-    
 }
